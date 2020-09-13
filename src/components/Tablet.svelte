@@ -1,26 +1,23 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   export let name: string;
   import type { TileContent } from "../models";
-import Tile from "./Tile.svelte";
+  import Tile from "./Tile.svelte";
+  import { genNewTileValue } from "../utils";
 
-  const tiles: Array<TileContent> = [
-    { value: 1 },
-    { value: 2 },
-    { value: 3 },
-    { value: 4 },
-    { value: 5 },
-    { value: 6 },
-    { value: 7 },
-    { value: 8 },
-    { value: 9 },
-    { value: 10 },
-    { value: 11 },
-    { value: 12 },
-    { value: 13 },
-    { value: 14 },
-    { value: 15 },
-    { value: 16 },
-  ];
+  let tiles: Array<TileContent> = [...Array(16)].map(() => ({ value: 0 }));
+
+  onMount(() => {
+    const randomTiles: number[] = [
+      Math.floor(Math.random() * 8),
+      Math.floor(Math.random() * 16),
+    ];
+
+    randomTiles.map(
+      (rT) => (tiles[rT] = { value: genNewTileValue() } as TileContent)
+    );
+  });
 </script>
 
 <style>
@@ -44,6 +41,8 @@ import Tile from "./Tile.svelte";
 
 <div class="wrapper">
   {#each tiles as tile}
-    <div class="box"><Tile value={tile.value} /></div>
+    <div class="box">
+      <Tile value={tile.value} />
+    </div>
   {/each}
 </div>

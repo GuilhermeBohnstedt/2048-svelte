@@ -107,4 +107,4 @@
   }
 </style>
 
-<div class="box tile-{value}">{2 ** value}</div>
+<div class="box tile-{value}">{#if value > 0 }{2 ** value}{/if}</div>
