@@ -2,11 +2,18 @@
   import { onMount } from "svelte";
 
   export let name: string;
-  import type { TileContent } from "../models";
+  import type { TileContent, GameActions } from "../models";
   import Tile from "./Tile.svelte";
   import { genNewTileValue } from "../utils";
 
   let tiles: Array<TileContent> = [...Array(16)].map(() => ({ value: 0 }));
+
+  const gameActions: GameActions = {
+    ArrowUp: (tiles: Array<TileContent>) => tiles,
+    ArrowDown: (tiles: Array<TileContent>) => tiles,
+    ArrowRight: (tiles: Array<TileContent>) => tiles,
+    ArrowLeft: (tiles: Array<TileContent>) => tiles,
+  };
 
   onMount(() => {
     const randomTiles: number[] = [
@@ -18,6 +25,10 @@
       (rT) => (tiles[rT] = { value: genNewTileValue() } as TileContent)
     );
   });
+
+  const handleKeydown = (event: KeyboardEvent) => {
+    tiles = gameActions[event.key](tiles);
+  };
 </script>
 
 <style>
@@ -38,6 +49,8 @@
     line-height: 120px;
   }
 </style>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <div class="wrapper">
   {#each tiles as tile}
