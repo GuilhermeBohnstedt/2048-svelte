@@ -5,14 +5,15 @@
   import type { TileContent, GameActions } from "../models";
   import Tile from "./Tile.svelte";
   import { genNewTileValue } from "../utils";
+  import {moveDown, moveLeft, moveRight, moveUp} from '../game';
 
   let tiles: Array<TileContent> = [...Array(16)].map(() => ({ value: 0 }));
 
   const gameActions: GameActions = {
-    ArrowUp: (tiles: Array<TileContent>) => tiles,
-    ArrowDown: (tiles: Array<TileContent>) => tiles,
-    ArrowRight: (tiles: Array<TileContent>) => tiles,
-    ArrowLeft: (tiles: Array<TileContent>) => tiles,
+    ArrowUp: (tiles: Array<TileContent>) => moveUp(tiles),
+    ArrowDown: (tiles: Array<TileContent>) => moveDown(tiles),
+    ArrowRight: (tiles: Array<TileContent>) => moveRight(tiles),
+    ArrowLeft: (tiles: Array<TileContent>) => moveLeft(tiles),
   };
 
   onMount(() => {
@@ -27,7 +28,9 @@
   });
 
   const handleKeydown = (event: KeyboardEvent) => {
-    tiles = gameActions[event.key](tiles);
+    if(gameActions[event.key]) {
+      tiles = gameActions[event.key](tiles);
+    }
   };
 </script>
 
