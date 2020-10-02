@@ -1,4 +1,14 @@
-import type { TileContent } from "./models";
+import type { TileContent, GameState, MovesType, MoveType } from "./models";
+import { genNewTileValue } from "./utils";
+
+export const genNewTiles = (tiles: Array<TileContent>, dimension: number): Array<TileContent> => {
+  const randomTiles: number[] = [
+    Math.floor(Math.random() * (dimension * 2)),
+    Math.floor(Math.random() * (dimension * dimension)),
+  ]
+
+  return tiles.map((tile, index) => randomTiles.includes(index) ? { value: genNewTileValue() } : tile);
+}
 
 const changeTile = (arr: Array<TileContent>, from: number, to: number) => {
   const array = [...arr];
@@ -13,59 +23,62 @@ const changeTile = (arr: Array<TileContent>, from: number, to: number) => {
 
 const isEmptyTile = (tile: TileContent): boolean => tile.value === 0;
 
-const getNextUpEmptyTile = (arr: Array<TileContent>, index: number): number => {
-  const nextTile: number = index - 4;
-  return ![0,1,2,3].includes(index) && isEmptyTile(arr[nextTile]) ? getNextUpEmptyTile(arr, nextTile) : index;
+const moveToNextTile = (tiles: Array<TileContent>, index: number, move: MoveType): Array<TileContent> => {
+
+  const nextIndex: number = index + move.nextTile;
+  const canMoveTo: boolean = isEmptyTile(tiles[nextIndex]);
+
+  return canMoveTo ? changeTile(tiles, index, nextIndex) : tiles;
 }
 
-export const moveUp = (tiles: Array<TileContent>): Array<TileContent> => {
-  return tiles.reduce((acc: Array<TileContent>, tile: TileContent, index: number) => {
-    const isMoveableTile = !isEmptyTile(tile);
-    const moveToTileIndex: number = isMoveableTile ? getNextUpEmptyTile(acc, index) : index;
+export const move = (state: GameState, move: MovesType): GameState => {
+  const newTiles: Array<TileContent> = state.tiles.reduce((acc: Array<TileContent>, tile: TileContent, index: number) => {
+    return isEmptyTile(tile) ? acc : moveToNextTile(acc, index, state.moves[move]);
+  }, state.tiles)
 
-    return moveToTileIndex !== index ? changeTile(acc, index, moveToTileIndex) : acc;
-  }, tiles);
+  return {
+    ...state,
+    tiles: newTiles,
+  };
 }
 
-const getNextDownEmptyTile = (arr: Array<TileContent>, index: number): number => {
-  const nextTile: number = index + 4;
-  return ![12,13,14,15].includes(index) && isEmptyTile(arr[nextTile]) ? getNextDownEmptyTile(arr, nextTile) : index;
-}
+export const genInitialState = (dimension: number): GameState => {
+  const doubleDimension = dimension * dimension;
+  const topLimit = [...Array(dimension)].map((value, index) => index);
+  const bottomLimit = [...Array(dimension)].map((value, index) => doubleDimension - (index + 1));
+  const leftLimit = [...Array(dimension)].map((value, index) => index * dimension);
+  const rightLimit = [...Array(dimension)].map((value, index) => index * dimension + (dimension - 1));
 
-export const moveDown = (tiles: Array<TileContent>): Array<TileContent> => {
-  return tiles.reduce((acc: Array<TileContent>, tile: TileContent, index: number) => {
-    const isMoveableTile = !isEmptyTile(tile);
-    const moveToTileIndex: number = isMoveableTile ? getNextDownEmptyTile(acc, index) : index;
-
-    return moveToTileIndex !== index ? changeTile(acc, index, moveToTileIndex) : acc;
-  }, tiles);
-}
-
-const getNextLeftEmptyTile = (arr: Array<TileContent>, index: number): number => {
-  const nextTile: number = index - 1;
-  return ![0,4,8,12].includes(index) && isEmptyTile(arr[nextTile]) ? getNextLeftEmptyTile(arr, nextTile) : index;
-}
-
-export const moveLeft = (tiles: Array<TileContent>): Array<TileContent> => {
-  return tiles.reduce((acc: Array<TileContent>, tile: TileContent, index: number) => {
-    const isMoveableTile = !isEmptyTile(tile);  
-    const moveToTileIndex: number = isMoveableTile ? getNextLeftEmptyTile(acc, index) : index;
-
-    return moveToTileIndex !== index ? changeTile(acc, index, moveToTileIndex) : acc;
-  }, tiles);
-}
-
-const getNextRightEmptyTile = (arr: Array<TileContent>, index: number): number => {
-  const nextTile: number = index + 1;
-  return ![3,7,11,15].includes(index) && isEmptyTile(arr[nextTile]) ? getNextRightEmptyTile(arr, nextTile) : index;
-}
-
-export const moveRight = (tiles: Array<TileContent>): Array<TileContent> => {
-  return tiles.reduce((acc: Array<TileContent>, tile: TileContent, index: number) => {
-    const isMoveableTile = !isEmptyTile(tile);  
-    const moveToTileIndex: number = isMoveableTile ? getNextRightEmptyTile(acc, index) : index;
-
-    return moveToTileIndex !== index ? changeTile(acc, index, moveToTileIndex) : acc;
-  }, tiles);
-
+  return {
+    dimension,
+    moves: {
+      up: {
+        nextTile: -dimension,
+        start: topLimit,
+        stop: bottomLimit,
+      },
+      down: {
+        nextTile: dimension,
+        start: bottomLimit,
+        stop: topLimit,
+      },
+      right: {
+        nextTile: 1,
+        start: rightLimit,
+        stop: leftLimit,
+      },
+      left: {
+        nextTile: -1,
+        start: leftLimit,
+        stop: rightLimit,
+      }
+    },
+    tiles: genNewTiles([...Array(dimension * dimension)].map(() => ({ value: 0 })), dimension),
+    actions: {
+      ArrowUp: (state: GameState) => move(state, 'up'),
+      ArrowDown: (state: GameState) => move(state, 'down'),
+      ArrowLeft: (state: GameState) => move(state, 'left'),
+      ArrowRight: (state: GameState) => move(state, 'right'),
+    }
+  }
 }

@@ -1,35 +1,20 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  export let name: string;
-  import type { TileContent, GameActions } from "../models";
+  export let dimension: number;
+  import type { GameState } from "../models";
   import Tile from "./Tile.svelte";
-  import { genNewTileValue } from "../utils";
-  import {moveDown, moveLeft, moveRight, moveUp} from '../game';
+  import { genInitialState } from "../game";
 
-  let tiles: Array<TileContent> = [...Array(16)].map(() => ({ value: 0 }));
-
-  const gameActions: GameActions = {
-    ArrowUp: (tiles: Array<TileContent>) => moveUp(tiles),
-    ArrowDown: (tiles: Array<TileContent>) => moveDown(tiles),
-    ArrowRight: (tiles: Array<TileContent>) => moveRight(tiles),
-    ArrowLeft: (tiles: Array<TileContent>) => moveLeft(tiles),
-  };
+  let gameState: GameState;
 
   onMount(() => {
-    const randomTiles: number[] = [
-      Math.floor(Math.random() * 8),
-      Math.floor(Math.random() * 16),
-    ];
-
-    randomTiles.map(
-      (rT) => (tiles[rT] = { value: genNewTileValue() } as TileContent)
-    );
+    gameState = genInitialState(dimension);
   });
 
   const handleKeydown = (event: KeyboardEvent) => {
-    if(gameActions[event.key]) {
-      tiles = gameActions[event.key](tiles);
+    if (gameState.actions[event.key]) {
+      gameState = gameState.actions[event.key](gameState);
     }
   };
 </script>
@@ -56,9 +41,11 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <div class="wrapper">
-  {#each tiles as tile}
-    <div class="box">
-      <Tile value={tile.value} />
-    </div>
-  {/each}
+  {#if gameState}
+    {#each gameState.tiles as tile}
+      <div class="box">
+        <Tile value={tile.value} />
+      </div>
+    {/each}
+  {/if}
 </div>

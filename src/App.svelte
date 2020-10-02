@@ -12,5 +12,5 @@
 </style>
 
 <main>
-  <Tablet />
+  <Tablet dimension={4}/>
 </main>
