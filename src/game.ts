@@ -1,10 +1,18 @@
 import type { TileContent, GameState, MovesType, MoveType } from "./models";
-import { genNewTileValue } from "./utils";
+import { genNewTileValue, isEmptyTile } from "./utils";
 
-export const genNewTiles = (tiles: Array<TileContent>, dimension: number): Array<TileContent> => {
+const getAllEmptyTiles = (tiles: Array<TileContent>): number[] =>
+  tiles.reduce((acc: number[], tile: TileContent, index: number) => [
+    ...acc,
+    ...(isEmptyTile(tile) ? [index] : [])
+  ], [])
+
+
+export const genNewTiles = (tiles: Array<TileContent>): Array<TileContent> => {
+  const empty = getAllEmptyTiles(tiles);
   const randomTiles: number[] = [
-    Math.floor(Math.random() * (dimension * 2)),
-    Math.floor(Math.random() * (dimension * dimension)),
+    Math.floor(Math.random() * (empty.length - 1 * 2)),
+    ...(tiles.length === empty.length ? [Math.floor(Math.random() * (empty.length - 1))] : []),
   ]
 
   return tiles.map((tile, index) => randomTiles.includes(index) ? { value: genNewTileValue() } : tile);
@@ -21,14 +29,16 @@ const changeTile = (arr: Array<TileContent>, from: number, to: number) => {
   return array;
 }
 
-const isEmptyTile = (tile: TileContent): boolean => tile.value === 0;
-
 const moveToNextTile = (tiles: Array<TileContent>, index: number, move: MoveType): Array<TileContent> => {
-
   const nextIndex: number = index + move.nextTile;
-  const canMoveTo: boolean = isEmptyTile(tiles[nextIndex]);
+  const hasNextTile: boolean = nextIndex >= 0 && nextIndex < tiles.length;
+  const canMoveTo: boolean = hasNextTile && isEmptyTile(tiles[nextIndex]);
 
-  return canMoveTo ? changeTile(tiles, index, nextIndex) : tiles;
+  const inLimit: boolean = move.stop.includes(index);
+
+  console.log({ index, nextIndex, inLimit, canMoveTo, move });
+
+  return !inLimit && canMoveTo ? changeTile(tiles, index, nextIndex) : tiles;
 }
 
 export const move = (state: GameState, move: MovesType): GameState => {
@@ -38,7 +48,7 @@ export const move = (state: GameState, move: MovesType): GameState => {
 
   return {
     ...state,
-    tiles: newTiles,
+    tiles: genNewTiles(newTiles),
   };
 }
 
@@ -54,26 +64,26 @@ export const genInitialState = (dimension: number): GameState => {
     moves: {
       up: {
         nextTile: -dimension,
-        start: topLimit,
-        stop: bottomLimit,
-      },
-      down: {
-        nextTile: dimension,
         start: bottomLimit,
         stop: topLimit,
       },
+      down: {
+        nextTile: dimension,
+        start: topLimit,
+        stop: bottomLimit,
+      },
       right: {
         nextTile: 1,
-        start: rightLimit,
-        stop: leftLimit,
+        start: leftLimit,
+        stop: rightLimit,
       },
       left: {
         nextTile: -1,
-        start: leftLimit,
-        stop: rightLimit,
+        start: rightLimit,
+        stop: leftLimit,
       }
     },
-    tiles: genNewTiles([...Array(dimension * dimension)].map(() => ({ value: 0 })), dimension),
+    tiles: genNewTiles([...Array(dimension * dimension)].map(() => ({ value: 0 }))),
     actions: {
       ArrowUp: (state: GameState) => move(state, 'up'),
       ArrowDown: (state: GameState) => move(state, 'down'),
