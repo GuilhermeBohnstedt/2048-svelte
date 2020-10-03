@@ -14,7 +14,7 @@
 
   const handleKeydown = (event: KeyboardEvent) => {
     if (gameState.actions[event.key]) {
-      gameState = gameState.actions[event.key](gameState);
+      gameState.tablet = gameState.actions[event.key](gameState.tablet);
     }
   };
 </script>
@@ -42,9 +42,9 @@
 
 <div class="wrapper">
   {#if gameState}
-    {#each gameState.tiles as tile}
+    {#each gameState.tablet.flatMap(row => row) as tile}
       <div class="box">
-        <Tile value={tile.value} />
+        <Tile value={tile} />
       </div>
     {/each}
   {/if}

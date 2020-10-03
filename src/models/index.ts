@@ -1,11 +1,7 @@
-export type TileContent = {
-  value: number;
-}
-
 export type GameKeys = 'ArrowUp' | 'ArrowDown' | 'ArrowRight' | 'ArrowLeft'
 
 export type GameActions = {
-  [key in GameKeys]: (state: GameState) => GameState;
+  [key in GameKeys]: (tablet: Tablet<number>) => Tablet<number>;
 }
 
 export enum Moves {
@@ -17,15 +13,12 @@ export enum Moves {
 
 export type MovesType = keyof typeof Moves;
 
-export type MoveType = {
-  nextTile: number;
-  start: number[];
-  stop: number[];
-}
+
+export type Row<T> = Array<T>;
+export type Tablet<T> = Array<Row<T>>;
 
 export type GameState = {
   dimension: number;
-  moves: Record<MovesType, MoveType>;
-  tiles: Array<TileContent>;
+  tablet: Tablet<number>;
   actions: GameActions;
 }
