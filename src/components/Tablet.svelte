@@ -20,32 +20,38 @@
 </script>
 
 <style>
-  .wrapper {
-    padding: 15px;
-    background-color: #bbada0;
+  .grid {
     display: grid;
     grid-gap: 15px;
     grid-template-columns: repeat(4, 120px);
     grid-template-rows: repeat(4, 120px);
     grid-auto-flow: row;
+  }
+  .wrapper {
+    padding: 15px;
+    background-color: #bbada0;
     border-radius: 6px;
+  }
+
+  .tiles {
+    position: absolute;
   }
   .box {
     background-color: #cdc1b4;
-    color: #000;
-    text-align: center;
-    line-height: 120px;
   }
 </style>
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="wrapper">
-  {#if gameState}
-    {#each gameState.tablet.flatMap(row => row) as tile}
-      <div class="box">
-        <Tile value={tile} />
-      </div>
+{#if gameState}
+  <div class="grid wrapper">
+    {#each Array(gameState.tablet.length ** 2) as box}
+      <div class="box box-{box}" />
     {/each}
-  {/if}
-</div>
+  </div>
+  <div class="grid tiles">
+    {#each gameState.tablet.flatMap((row) => row) as tile}
+      <Tile {tile} />
+    {/each}
+  </div>
+{/if}

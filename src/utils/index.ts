@@ -1,16 +1,16 @@
-import type { Tablet, Row } from "../models";
+import type { Tablet, Row, TileContent } from "../models";
 
 export const genNewTileValue = (): number =>
   Math.random() > 0.9 ? 2 : 1;
 
-export const isEmptyTile = (tile: number): boolean => tile === 0;
+export const isEmptyTile = (tile: TileContent): boolean => tile.value === 0;
 
-export const transpose = (matrix: Tablet<number>): Tablet<number> => {
-  return matrix.reduce((prev: Row<number>[], next: Row<number>) =>
-    next.map<Row<number>>((item, i: number) =>
+export const transpose = (matrix: Tablet): Tablet => {
+  return matrix.reduce((prev: Row[], next: Row) =>
+    next.map<Row>((item, i: number) =>
       [...(prev[i] || []), next[i]]
     ),
     []);
 }
 
-export const reverse = (matrix: Tablet<number>) => matrix.map(row => row.reverse());
+export const reverse = (matrix: Tablet) => matrix.map(row => row.reverse());

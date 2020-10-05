@@ -1,8 +1,15 @@
 <script lang="ts">
-  export let value: number;
+  export let tile: TileContent;
+  import { fade } from "svelte/transition";
+  import type { TileContent } from "../models";
 </script>
 
 <style>
+  .tile {
+    color: #000;
+    text-align: center;
+    line-height: 120px;
+  }
   .tile-1 {
     background: #eee4da;
     box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0),
@@ -107,4 +114,8 @@
   }
 </style>
 
-<div class="box tile-{value}">{#if value > 0 }{2 ** value}{/if}</div>
+<div class="tile">
+  {#if tile.value > 0}
+    <div class="tile tile-{tile.value} {tile.new}" in:fade>{2 ** tile.value}</div>
+  {/if}
+</div>
