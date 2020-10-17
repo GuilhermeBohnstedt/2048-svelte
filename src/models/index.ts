@@ -14,6 +14,9 @@ export enum Moves {
 export type MovesType = keyof typeof Moves;
 
 export type TileContent = {
+  id: number;
+  top: number;
+  left: number;
   value: number;
   merged: boolean;
   swipe: boolean;

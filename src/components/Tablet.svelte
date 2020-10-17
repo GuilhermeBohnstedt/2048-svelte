@@ -10,11 +10,14 @@
 
   onMount(() => {
     gameState = genInitialState(dimension);
+    console.log(gameState);
   });
 
   const handleKeydown = (event: KeyboardEvent) => {
     if (gameState.actions[event.key]) {
       gameState.tablet = gameState.actions[event.key](gameState.tablet);
+    console.log(gameState);
+
     }
   };
 </script>
@@ -28,6 +31,7 @@
     grid-auto-flow: row;
   }
   .wrapper {
+    position: relative;
     padding: 15px;
     background-color: #bbada0;
     border-radius: 6px;
@@ -35,7 +39,11 @@
 
   .tiles {
     position: absolute;
+    height: calc(100% - 30px);
+    width: calc(100% - 30px);
+    padding: 15px;
   }
+
   .box {
     background-color: #cdc1b4;
   }
@@ -45,13 +53,13 @@
 
 {#if gameState}
   <div class="grid wrapper">
-    {#each Array(gameState.tablet.length ** 2) as box}
+    {#each [...Array(gameState.tablet.length ** 2).keys()] as box}
       <div class="box box-{box}" />
     {/each}
-  </div>
-  <div class="grid tiles">
-    {#each gameState.tablet.flatMap((row) => row) as tile}
-      <Tile {tile} />
-    {/each}
+    <div class="tiles">
+      {#each gameState.tablet.flatMap((row) => row) as tile}
+        <Tile {tile} />
+      {/each}
+    </div>
   </div>
 {/if}

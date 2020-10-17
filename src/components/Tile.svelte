@@ -1,7 +1,27 @@
 <script lang="ts">
   export let tile: TileContent;
-  import { fade } from "svelte/transition";
   import type { TileContent } from "../models";
+  import { tweened } from "svelte/motion";
+  import { cubicOut } from "svelte/easing";
+  import { beforeUpdate } from "svelte";
+
+  const topTweened = tweened(tile.top / 3, {
+    duration: 400,
+    easing: cubicOut,
+  });
+
+  const leftTweened = tweened(tile.left / 3, {
+    duration: 400,
+    easing: cubicOut,
+  });
+
+  beforeUpdate(() => {
+		topTweened.set(tile.top / 3);
+	});
+
+  // Based on composite rule of three
+  $: top = $topTweened * 405 + 15;
+  $: left = $leftTweened * 405 + 15;
 </script>
 
 <style>
@@ -9,6 +29,9 @@
     color: #000;
     text-align: center;
     line-height: 120px;
+    position: absolute;
+    width: 120px;
+    height: 120px;
   }
   .tile-1 {
     background: #eee4da;
@@ -114,8 +137,8 @@
   }
 </style>
 
-<div class="tile">
-  {#if tile.value > 0}
-    <div class="tile tile-{tile.value} {tile.new}" in:fade>{2 ** tile.value}</div>
-  {/if}
-</div>
+{#if tile.value > 0}
+  <div id="{tile.id.toString()}" class="tile tile-{tile.value}" style="top: {top}px; left: {left}px;">
+    {2 ** tile.value}
+  </div>
+{/if}
