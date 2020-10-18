@@ -28,6 +28,7 @@
     grid-auto-flow: row;
   }
   .wrapper {
+    position: relative;
     padding: 15px;
     background-color: #bbada0;
     border-radius: 6px;
@@ -35,7 +36,10 @@
 
   .tiles {
     position: absolute;
+    height: 100%;
+    width: 100%;
   }
+
   .box {
     background-color: #cdc1b4;
   }
@@ -45,13 +49,15 @@
 
 {#if gameState}
   <div class="grid wrapper">
-    {#each Array(gameState.tablet.length ** 2) as box}
+    {#each [...Array(gameState.tablet.length ** 2).keys()] as box}
       <div class="box box-{box}" />
     {/each}
-  </div>
-  <div class="grid tiles">
-    {#each gameState.tablet.flatMap((row) => row) as tile}
-      <Tile {tile} />
-    {/each}
+    <div class="tiles">
+      {#each gameState.tablet.flatMap((row) => row) as tile}
+        {#if tile.position}
+          <Tile {tile} />
+        {/if}
+      {/each}
+    </div>
   </div>
 {/if}

@@ -13,7 +13,14 @@ export enum Moves {
 
 export type MovesType = keyof typeof Moves;
 
+export type PositionTile = {
+  top: number;
+  left: number;
+}
+
 export type TileContent = {
+  prevPosition?: PositionTile;
+  position?: PositionTile;
   value: number;
   merged: boolean;
   swipe: boolean;

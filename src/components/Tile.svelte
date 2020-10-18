@@ -1,7 +1,67 @@
 <script lang="ts">
   export let tile: TileContent;
-  import { fade } from "svelte/transition";
   import type { TileContent } from "../models";
+  import { tweened, spring } from "svelte/motion";
+  import { cubicOut } from "svelte/easing";
+  import { onMount } from "svelte";
+
+  const topTweened = tweened(
+    (tile.new ? tile.position.top : tile.prevPosition.top) / 3,
+    {
+      duration: 200,
+      easing: cubicOut,
+    }
+  );
+
+  const leftTweened = tweened(
+    (tile.new ? tile.position.left : tile.prevPosition.left) / 3,
+    {
+      duration: 200,
+      easing: cubicOut,
+    }
+  );
+
+  const mergeSpring = spring(
+    { scale: 0 },
+    {
+      stiffness: 0.3,
+      damping: 0.3,
+    }
+  );
+
+  let mergedValue: number = 0;
+
+  // Based on composite rule of three
+  $: top = $topTweened * 405 + 15;
+  $: left = $leftTweened * 405 + 15;
+  $: wasMerged = tile.merged && mergedValue !== tile.value;
+
+  $: if (wasMerged) {
+    mergeSpring.set({ scale: 1 });
+  }
+
+  $: if ($mergeSpring.scale === 1) {
+    mergedValue = tile.value;
+    mergeSpring.set({ scale: 0 });
+  }
+
+  onMount(() => {
+    topTweened.set(tile.position?.top / 3);
+    leftTweened.set(tile.position?.left / 3);
+  });
+
+  const scale = (node, { duration }) => {
+    return {
+      duration,
+      css: (t) => {
+        const eased = tile.new ? cubicOut(t) : 1;
+
+        return `
+          transform: scale(${eased});
+          `;
+      },
+    };
+  };
 </script>
 
 <style>
@@ -9,6 +69,9 @@
     color: #000;
     text-align: center;
     line-height: 120px;
+    position: absolute;
+    width: 120px;
+    height: 120px;
   }
   .tile-1 {
     background: #eee4da;
@@ -114,8 +177,9 @@
   }
 </style>
 
-<div class="tile">
-  {#if tile.value > 0}
-    <div class="tile tile-{tile.value} {tile.new}" in:fade>{2 ** tile.value}</div>
-  {/if}
+<div
+  class="tile tile-{tile.value}"
+  style="top: {top}px; left: {left}px; transform: scale({wasMerged ? $mergeSpring.scale : 1})"
+  in:scale={{ duration: 400 }}>
+  {2 ** tile.value}
 </div>
