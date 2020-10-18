@@ -10,14 +10,11 @@
 
   onMount(() => {
     gameState = genInitialState(dimension);
-    console.log(gameState);
   });
 
   const handleKeydown = (event: KeyboardEvent) => {
     if (gameState.actions[event.key]) {
       gameState.tablet = gameState.actions[event.key](gameState.tablet);
-    console.log(gameState);
-
     }
   };
 </script>
@@ -39,9 +36,8 @@
 
   .tiles {
     position: absolute;
-    height: calc(100% - 30px);
-    width: calc(100% - 30px);
-    padding: 15px;
+    height: 100%;
+    width: 100%;
   }
 
   .box {
@@ -58,7 +54,9 @@
     {/each}
     <div class="tiles">
       {#each gameState.tablet.flatMap((row) => row) as tile}
-        <Tile {tile} />
+        {#if tile.position}
+          <Tile {tile} />
+        {/if}
       {/each}
     </div>
   </div>

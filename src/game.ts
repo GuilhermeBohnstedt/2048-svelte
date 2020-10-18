@@ -1,23 +1,23 @@
 import type { GameState, Tablet, Row, TileContent } from "./models";
 import { genNewTileValue, isEmptyTile, transpose, reverse } from "./utils";
 
-const genRow = (dimension: number, rowIndex: number): Row =>
-  [...Array<TileContent>(dimension).keys()].map((index) =>
-    ({ id: rowIndex * dimension + index, top: 0, left: 0, value: 0, merged: false, new: false, swipe: false })
+const genRow = (dimension: number): Row =>
+  [...Array<TileContent>(dimension).keys()].map(() =>
+    ({ value: 0, merged: false, new: false, swipe: false })
   );
 
 const genTablet = (dimension: number): Tablet =>
-  [...Array<Row>(dimension).keys()].map((rowIndex) => genRow(dimension, rowIndex))
+  [...Array<Row>(dimension).keys()].map((rowIndex) => genRow(dimension))
 
 const hasEmptyTiles = (tablet: Tablet): boolean =>
   tablet.filter(row => row.filter(tile => isEmptyTile(tile)).length > 0).length > 0
 
-const populateTile = (arr: Tablet, row: number, tile: number): Tablet => {
+const populateNewTile = (arr: Tablet, row: number, tile: number): Tablet => {
   return [
     ...arr.slice(0, row),
     [
       ...arr[row].slice(0, tile),
-      { ...arr[row][tile], value: genNewTileValue(), new: true },
+      { ...arr[row][tile], value: genNewTileValue(), new: true, position: { top: row, left: tile } },
       ...arr[row].slice(tile + 1, arr[row].length),
 
     ],
@@ -27,7 +27,16 @@ const populateTile = (arr: Tablet, row: number, tile: number): Tablet => {
 
 const reposition = (tablet: Tablet): Tablet => {
   return tablet.map((row, rowIndex) =>
-    row.map((tile, tileIndex) => ({ ...tile, top: rowIndex, left: tileIndex }))
+    row.map((tile, tileIndex) =>
+      (
+        {
+          ...tile,
+          new: false,
+          ...(tile.position ? { prevPosition: tile.position } : {}),
+          ...(tile.value > 0 ? { position: { top: rowIndex, left: tileIndex } } : {})
+        }
+      )
+    )
   )
 }
 
@@ -38,7 +47,7 @@ export const genNewTiles = (tablet: Tablet): Tablet => {
   const randomTile = Math.floor(Math.random() * tablet.length);
 
   return isEmptyTile(tablet[randomRow][randomTile])
-    ? populateTile(tablet, randomRow, randomTile)
+    ? populateNewTile(tablet, randomRow, randomTile)
     : genNewTiles(tablet);
 }
 
@@ -67,7 +76,7 @@ const normalize = (tablet: Tablet): Tablet => {
   return tablet.map((row, rowIndex) => {
     const noZeroTiles = row.filter(tile => !isEmptyTile(tile));
     const merged = merge(noZeroTiles);
-    return [...merged, ...genRow(tablet.length - merged.length, rowIndex)]
+    return [...merged, ...genRow(tablet.length - merged.length)]
   }
   )
 }
@@ -78,16 +87,16 @@ export const genInitialState = (dimension: number): GameState => {
     tablet: genNewTiles(genTablet(dimension)),
     actions: {
       ArrowUp: (tablet: Tablet) => {
-        return genNewTiles(transpose(normalize(transpose(tablet))));
+        return genNewTiles(reposition(transpose(normalize(transpose(tablet)))));
       },
       ArrowDown: (tablet: Tablet) => {
-        return genNewTiles(transpose(normalize(transpose(tablet.reverse()))).reverse())
+        return genNewTiles(reposition(transpose(normalize(transpose(tablet.reverse()))).reverse()))
       },
       ArrowLeft: (tablet: Tablet) => {
-        return genNewTiles(normalize(tablet));
+        return genNewTiles(reposition(normalize(tablet)));
       },
       ArrowRight: (tablet: Tablet) => {
-        return genNewTiles(reverse(normalize(reverse(tablet))));
+        return genNewTiles(reposition(reverse(normalize(reverse(tablet)))));
       },
     }
   }
