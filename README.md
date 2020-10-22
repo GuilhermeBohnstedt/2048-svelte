@@ -25,7 +25,7 @@ $ git clone https://github.com/GuilhermeBohnstedt/2048-svelte.git
 Install dependencies and start the development server
 
 ```sh
-$ cd Trellu
+$ cd 2048-svelte
 
 $ yarn
 
