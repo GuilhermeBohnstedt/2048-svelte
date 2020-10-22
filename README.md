@@ -10,9 +10,11 @@ This project is part of my personal portfolio, so, I'll be happy if you could pr
 
 ## Built With
 - [Svelte JS](http://svelte.dev) - Cybernetically enhanced web apps
+- [TypeScript](https://www.typescriptlang.org/) - TypeScript Language
 - [Rollup.js](https://rollupjs.org) - Module bundler
 - [Postcss](https://postcss.org/) - A tool for transforming CSS with JavaScript
 - [ESLint](https://eslint.org/) - Linter
+- [gitmoji](https://gitmoji.carloscuesta.me/) - Emoji for commit messages
 
 ## Running locally
 
