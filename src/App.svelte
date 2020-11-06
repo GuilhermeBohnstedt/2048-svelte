@@ -1,9 +1,11 @@
 <script lang="ts">
+  export let dimension: number;
+  export let title: string;
+
   import Tablet from "./components/Tablet.svelte";
   import Header from "./components/Header.svelte";
   import { onMount } from "svelte";
 
-  export let dimension: number;
   import type { GameState } from "./models";
   import { genInitialState } from "./game";
 
@@ -36,11 +38,17 @@
     height: 100%;
     flex-direction: column;
   }
+
+  h1 {
+    font-size: 80px;
+    margin: 0;
+  }
 </style>
 
 <svelte:window on:keydown={handleKeydown} />
 
 <main>
+  <h1>{title}</h1>
   {#if gameState}
     <Header value={gameState.score} on:click={handleNewGame} />
     <Tablet tablet={gameState.tablet} />

@@ -66,7 +66,6 @@
 
 <style>
   .tile {
-    color: #000;
     text-align: center;
     line-height: 120px;
     position: absolute;

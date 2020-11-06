@@ -7,5 +7,7 @@ html, body {
 
 body {
 	margin: 0px;
-  background-color: #faf8ef;
+	background-color: #faf8ef;
+	color: #776e65;
+	font-weight: bold;
 }

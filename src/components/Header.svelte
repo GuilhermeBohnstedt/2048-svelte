@@ -52,7 +52,8 @@
     color: #f9f6f2;
     height: 40px;
     text-align: center;
-		border: none
+		border: none;
+		font-weight: bold;
 	}
 </style>
 
