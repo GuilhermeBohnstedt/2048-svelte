@@ -9,14 +9,22 @@
 
   let gameState: GameState;
 
-  onMount(() => {
+  const newGame = () => {
     gameState = genInitialState(dimension);
+  };
+
+  onMount(() => {
+    newGame();
   });
 
   const handleKeydown = (event: KeyboardEvent) => {
     if (gameState.actions[event.key]) {
       gameState = gameState.actions[event.key](gameState);
     }
+  };
+
+  const handleNewGame = () => {
+    newGame();
   };
 </script>
 
@@ -34,7 +42,7 @@
 
 <main>
   {#if gameState}
-    <Header value={gameState.score}/>
+    <Header value={gameState.score} on:click={handleNewGame} />
     <Tablet tablet={gameState.tablet} />
   {/if}
 </main>
