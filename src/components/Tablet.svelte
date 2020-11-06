@@ -1,22 +1,7 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-
-  export let dimension: number;
-  import type { GameState } from "../models";
+  import type { Tablet } from "../models";
+  export let tablet: Tablet;
   import Tile from "./Tile.svelte";
-  import { genInitialState } from "../game";
-
-  let gameState: GameState;
-
-  onMount(() => {
-    gameState = genInitialState(dimension);
-  });
-
-  const handleKeydown = (event: KeyboardEvent) => {
-    if (gameState.actions[event.key]) {
-      gameState.tablet = gameState.actions[event.key](gameState.tablet);
-    }
-  };
 </script>
 
 <style>
@@ -45,19 +30,15 @@
   }
 </style>
 
-<svelte:window on:keydown={handleKeydown} />
-
-{#if gameState}
-  <div class="grid wrapper">
-    {#each [...Array(gameState.tablet.length ** 2).keys()] as box}
-      <div class="box box-{box}" />
+<div class="grid wrapper">
+  {#each [...Array(tablet.length ** 2).keys()] as box}
+    <div class="box box-{box}" />
+  {/each}
+  <div class="tiles">
+    {#each tablet.flatMap((row) => row) as tile}
+      {#if tile.position}
+        <Tile {tile} />
+      {/if}
     {/each}
-    <div class="tiles">
-      {#each gameState.tablet.flatMap((row) => row) as tile}
-        {#if tile.position}
-          <Tile {tile} />
-        {/if}
-      {/each}
-    </div>
   </div>
-{/if}
+</div>
