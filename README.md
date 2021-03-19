@@ -1,5 +1,9 @@
 # 2048 Svelte
 
+<a href="https://gitmoji.dev">
+  <img src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square" alt="Gitmoji">
+</a>
+
 ![](screenshot.png)
 
 A project to recreate 2048 game in Svelte. The original [2048 Game](https://github.com/gabrielecirulli/2048)
